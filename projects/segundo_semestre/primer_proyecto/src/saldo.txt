@@ -1,0 +1,2 @@
+sueldo_uno = 500.000000 
+sueldo_dos = 700.000000
