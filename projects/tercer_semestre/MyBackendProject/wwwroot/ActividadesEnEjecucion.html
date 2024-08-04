@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+    <title>Actividades en Ejecución</title>
+    <style>
+        body {
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        header {
+            background-color: #007BFF;
+            padding: 10px 0;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+        }
+
+        nav ul li {
+            margin: 0 15px;
+        }
+
+        nav ul li a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 18px;
+        }
+
+        nav ul li a:hover {
+            text-decoration: underline;
+        }
+
+        main {
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .actividades-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .actividad-card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 20px;
+            padding: 20px;
+            max-width: 400px;
+            width: calc(100% - 40px);
+            text-align: left;
+            transition: transform 0.3s ease;
+        }
+
+        .actividad-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .actividad-card h2 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+
+        .actividad-card p {
+            color: #666;
+            margin-bottom: 10px;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .finalizar-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            background-color: #28a745;
+            color: #fff;
+            text-align: center;
+        }
+
+        .finalizar-button:hover {
+            background-color: #218838;
+        }
+
+        .estudiante-card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 20px;
+            padding: 20px;
+            max-width: 400px;
+            width: calc(100% - 40px);
+            text-align: left;
+            transition: transform 0.3s ease;
+        }
+
+        .estudiante-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .estudiante-card h2 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+
+        .estudiante-card p {
+            color: #666;
+            margin-bottom: 10px;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="/">Inicio</a></li>
+                <li><a href="/CrearActividades">Crear Actividades</a></li>
+                <li><a href="/VerActividades">Ver Actividades</a></li>
+                <li><a href="/ActividadesEnEjecucion">Actividades en Ejecución</a></li>
+                <li><a href="/VerRegistroActividadesEjecutadas">Ver Registro de Actividades Ejecutadas</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <h1>Actividades en Ejecución</h1>
+        <div class="actividades-container">
+            <!-- Aquí se insertarán las actividades desde el servidor -->
+        </div>
+    </main>
+
+    <div id="estudiantes-container"></div>
+
+    <script>
+        async function cargarActividades() {
+            try {
+                const response = await fetch('/api/ActividadesEnEjecucion');
+                const data = await response.json();
+                if (data.success) {
+                    const actividades = data.actividades;
+                    const actividadesContainer = document.querySelector('.actividades-container');
+                    actividadesContainer.innerHTML = ''; // Limpiar contenido actual
+                    actividades.forEach(actividad => {
+                        const card = document.createElement('div');
+                        card.classList.add('actividad-card');
+                        card.innerHTML = `
+                        <h2>${actividad.nombreActividad}</h2>
+                        <p><strong>Descripción:</strong> ${actividad.descripcion || 'N/A'}</p>
+                        <p><strong>Objetivos:</strong> ${actividad.objetivos || 'N/A'}</p>
+                        <p><strong>Responsable:</strong> ${actividad.responsable || 'N/A'}</p>
+                        <p><strong>Recursos Necesarios:</strong> ${actividad.recursosNecesarios || 'N/A'}</p>
+                        <p><strong>Justificación:</strong> ${actividad.justificacion || 'N/A'}</p>
+                        <div class="button-container">
+                            <button class="finalizar-button" onclick="mostrarDetalles(${actividad.id})">Asistencia De La Actividad</button>
+                        </div>`;
+                        actividadesContainer.appendChild(card);
+                    });
+
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error.message);
+                alert('Error al cargar las actividades: ' + error.message);
+            }
+        }
+
+        async function mostrarDetalles(idActividad) {
+            // Simplemente mostrar los datos en un alert
+            const mensaje = `ID de la Actividad: ${idActividad}`;
+
+            // alert(mensaje);
+            window.location.href = `/EstudiantesInscritos/${idActividad}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            cargarActividades();
+        });
+    </script>
+
+</body>
+
+</html>

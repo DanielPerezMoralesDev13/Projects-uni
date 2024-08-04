@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+    <title>Inscribir Estudiantes</title>
+    <link rel="stylesheet"
+        href="styles.css">
+    <style>
+        /* Estilos específicos para InscribirEstudiantes.html */
+        body {
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        header {
+            background-color: #007BFF;
+            padding: 10px 0;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+        }
+
+        nav ul li {
+            margin: 0 15px;
+        }
+
+        nav ul li a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 18px;
+        }
+
+        nav ul li a:hover {
+            text-decoration: underline;
+        }
+
+        main {
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .estudiantes-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .estudiante-card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 20px;
+            padding: 20px;
+            max-width: 400px;
+            width: calc(100% - 40px);
+            text-align: left;
+            transition: transform 0.3s ease;
+        }
+
+        .estudiante-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .estudiante-card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .estudiante-card p {
+            color: #666;
+            margin-bottom: 10px;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .inscribir-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            background-color: #007BFF;
+            color: #fff;
+            text-align: center;
+        }
+
+        .inscribir-button:hover {
+            background-color: #0056b3;
+        }
+
+        .seleccionado {
+            background-color: #28a745;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="/">Inicio</a></li>
+                <li><a href="/CrearActividades">Crear Actividades</a></li>
+                <li><a href="/VerActividades">Ver Actividades</a></li>
+                <li><a href="/ActividadesEnEjecucion.html">Actividades en Ejecución</a></li>
+                <li><a href="/VerRegistroActividadesEjecutadas">Ver Registro de Actividades Ejecutadas</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <h1>Inscribir Estudiantes</h1>
+        <div class="estudiantes-container">
+            <!-- Aquí se insertarán los estudiantes desde el servidor -->
+        </div>
+        <div class="button-container">
+            <button class="inscribir-button"
+                onclick="prepararInscripcion()">Inscribir Estudiantes</button>
+        </div>
+    </main>
+    <script>
+        // Función para obtener dinámicamente el id_actividad desde la URL
+        function getIdActividadFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id');
+            console.log("Valor de id recibido: " + id);
+            return id ? parseInt(id, 10) : null;
+        }
+
+        // Función para cargar estudiantes desde el servidor
+        async function cargarEstudiantes() {
+            try {
+                const idActividad = getIdActividadFromUrl();
+                if (idActividad === null || isNaN(idActividad)) {
+                    throw new Error('El valor de id_actividad no es válido.');
+                }
+                const response = await fetch(`/ObtenerEstudiantes?id=${idActividad}`);
+                if (response.ok) {
+                    const estudiantes = await response.json();
+                    const estudiantesContainer = document.querySelector('.estudiantes-container');
+                    estudiantesContainer.innerHTML = ''; // Limpiar contenido actual
+                    estudiantes.forEach(estudiante => {
+                        const card = document.createElement('div');
+                        card.classList.add('estudiante-card');
+                        card.innerHTML = `
+                            <h2>${estudiante.nombre}</h2>
+                            <p><strong>Número de Carnet:</strong> ${estudiante.numero_carnet}</p>
+                            <p><strong>Carrera:</strong> ${estudiante.carrera}</p>
+                            <button onclick="seleccionarEstudiante(this, '${estudiante.nombre}', '${estudiante.numero_carnet}', '${estudiante.carrera}')">Seleccionar</button>`;
+                        estudiantesContainer.appendChild(card);
+                    });
+                } else {
+                    throw new Error('Error al cargar los estudiantes.');
+                }
+            } catch (error) {
+                console.error('Error:', error.message);
+                alert('Error al cargar los estudiantes: ' + error.message);
+            }
+        }
+
+        // Función para seleccionar estudiantes
+        function seleccionarEstudiante(button, nombre, carnet, carrera) {
+            button.classList.toggle('seleccionado');
+        }
+
+        // Función para preparar la inscripción de estudiantes
+        async function prepararInscripcion() {
+            const estudiantesSeleccionados = document.querySelectorAll('.seleccionado');
+            const estudiantesData = [];
+
+            estudiantesSeleccionados.forEach(estudiante => {
+                const nombreElement = estudiante.parentElement.querySelector('h2');
+                const carnetElement = estudiante.parentElement.querySelector('p:nth-of-type(1)');
+                const carreraElement = estudiante.parentElement.querySelector('p:nth-of-type(2)');
+
+                if (nombreElement && carnetElement && carreraElement) {
+                    const nombre = nombreElement.textContent.trim();
+                    const carnet = carnetElement.textContent.replace('Número de Carnet:', '').trim();
+                    const carrera = carreraElement.textContent.replace('Carrera:', '').trim();
+
+                    estudiantesData.push({
+                        nombre: nombre,
+                        carnet: carnet,
+                        carrera: carrera
+                    });
+                }
+            });
+
+            console.log(estudiantesData);
+
+            try {
+                const idActividad = getIdActividadFromUrl();
+                const response = await fetch('/InscribirEstudiantes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        id_actividad: idActividad,
+                        estudiantes: estudiantesData
+                    })
+                });
+
+                if (response.ok) {
+                    alert('Estudiantes inscritos correctamente.');
+                    // Redirigir al usuario a ActividadesEnEjecucion.html
+                    window.location.href = '/ActividadesEnEjecucion.html';
+                } else {
+                    const errorText = await response.text();
+                    throw new Error(errorText);
+                }
+            } catch (error) {
+                console.error('Error:', error.message);
+                alert('Error al inscribir los estudiantes: ' + error.message);
+            }
+        }
+
+        // Evento al cargar el DOM para iniciar la carga de estudiantes
+        document.addEventListener('DOMContentLoaded', function () {
+            cargarEstudiantes();
+        });
+    </script>
+</body>
+
+</html>

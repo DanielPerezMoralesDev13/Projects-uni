@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <link rel="stylesheet"
+        href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+    <title>Editar Actividad</title>
+    <style>
+        /* Estilos generales */
+        body {
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #007BFF;
+            padding: 10px 0;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+        }
+
+        nav ul li {
+            margin: 0 15px;
+        }
+
+        nav ul li a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 18px;
+        }
+
+        nav ul li a:hover {
+            text-decoration: underline;
+        }
+
+        main {
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        form {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        textarea {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button[type="submit"] {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="/">Inicio</a></li>
+                <li><a href="/CrearActividades">Crear Actividades</a></li>
+                <li><a href="/VerActividades">Ver Actividades</a></li>
+                <li><a href="/ActividadesEnEjecucion">Actividades en Ejecución</a></li>
+                <li><a href="/VerRegistroActividadesEjecutadas">Ver Registro de Actividades Ejecutadas</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <h1>Editar Actividad</h1>
+        <form id="edit-activity-form">
+            <input type="hidden"
+                id="actividad-id"
+                name="actividad-id">
+            <label for="nombreActividad">Nombre de la Actividad</label>
+            <input type="text"
+                id="nombreActividad"
+                name="nombreActividad"
+                required>
+
+            <label for="descripcion">Descripción</label>
+            <textarea id="descripcion"
+                name="descripcion"
+                rows="4"></textarea>
+
+            <label for="objetivos">Objetivos</label>
+            <textarea id="objetivos"
+                name="objetivos"
+                rows="4"></textarea>
+
+            <label for="responsable">Responsable</label>
+            <input type="text"
+                id="responsable"
+                name="responsable">
+
+            <label for="recursosNecesarios">Recursos Necesarios</label>
+            <textarea id="recursosNecesarios"
+                name="recursosNecesarios"
+                rows="4"></textarea>
+
+            <label for="justificacion">Justificación</label>
+            <textarea id="justificacion"
+                name="justificacion"
+                rows="4"></textarea>
+
+            <button type="submit">Guardar Cambios</button>
+        </form>
+    </main>
+    <script>
+        // Función para cargar datos de la actividad a editar
+        async function cargarDatosActividad(id) {
+            const response = await fetch(`/ObtenerActividad/${id}`);
+            const actividad = await response.json();
+
+            document.getElementById('actividad-id').value = actividad.id;
+            document.getElementById('nombreActividad').value = actividad.nombreActividad ?? '';
+            document.getElementById('descripcion').value = actividad.descripcion ?? '';
+            document.getElementById('objetivos').value = actividad.objetivos ?? '';
+            document.getElementById('responsable').value = actividad.responsable ?? '';
+            document.getElementById('recursosNecesarios').value = actividad.recursosNecesarios ?? '';
+            document.getElementById('justificacion').value = actividad.justificacion ?? '';
+        }
+
+        // Obtener el ID de la actividad desde la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const actividadId = urlParams.get('id');
+        if (actividadId) {
+            cargarDatosActividad(actividadId);
+        }
+
+        // Manejar el evento de enviar el formulario
+        document.getElementById('edit-activity-form').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const actividadId = document.getElementById('actividad-id').value;
+            const data = {
+                nombreActividad: document.getElementById('nombreActividad').value,
+                descripcion: document.getElementById('descripcion').value,
+                objetivos: document.getElementById('objetivos').value,
+                responsable: document.getElementById('responsable').value,
+                recursosNecesarios: document.getElementById('recursosNecesarios').value,
+                justificacion: document.getElementById('justificacion').value
+            };
+
+            const response = await fetch(`/EditarActividad/${actividadId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                alert('Actividad actualizada con éxito.');
+                window.location.href = '/VerActividades';
+            } else {
+                alert('No se pudo actualizar la actividad.');
+            }
+        });
+    </script>
+</body>
+
+</html>

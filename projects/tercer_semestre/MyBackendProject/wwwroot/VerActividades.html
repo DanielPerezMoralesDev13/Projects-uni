@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <link rel="stylesheet"
+        href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+    <title>Ver Actividades</title>
+    <style>
+        /* Estilos generales */
+        body {
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #007BFF;
+            padding: 10px 0;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+        }
+
+        nav ul li {
+            margin: 0 15px;
+        }
+
+        nav ul li a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 18px;
+        }
+
+        nav ul li a:hover {
+            text-decoration: underline;
+        }
+
+        main {
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        /* Estilos para el contenedor de actividades */
+        .actividades-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        /* Estilos para cada tarjeta de actividad */
+        .actividad-card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 20px;
+            padding: 20px;
+            max-width: 400px;
+            width: calc(100% - 40px);
+            /* Ancho de la tarjeta con margen */
+            text-align: left;
+            transition: transform 0.3s ease;
+        }
+
+        .actividad-card:hover {
+            transform: translateY(-5px);
+            /* Efecto de levantamiento al pasar el mouse */
+        }
+
+        .actividad-card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .actividad-card p {
+            color: #666;
+            margin-bottom: 10px;
+            font-size: 18px;
+            line-height: 1.6;
+            /* Espaciado entre líneas */
+        }
+
+        .actividad-card span {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .ejecutar-button,
+        .eliminar-button,
+        .editar-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin: 5px;
+            flex: 1;
+            text-align: center;
+        }
+
+        .ejecutar-button {
+            background-color: #007BFF;
+            color: #fff;
+        }
+
+        .ejecutar-button:hover {
+            background-color: #0056b3;
+        }
+
+        .eliminar-button {
+            background-color: #dc3545;
+            color: #fff;
+        }
+
+        .eliminar-button:hover {
+            background-color: #c82333;
+        }
+
+        .editar-button {
+            background-color: #ffc107;
+            color: #212529;
+        }
+
+        .editar-button:hover {
+            background-color: #e0a800;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="/">Inicio</a></li>
+                <li><a href="/CrearActividades">Crear Actividades</a></li>
+                <li><a href="/VerActividades">Ver Actividades</a></li>
+                <li><a href="/ActividadesEnEjecucion">Actividades en Ejecución</a></li>
+                <li><a href="/VerRegistroActividadesEjecutadas">Ver Registro de Actividades Ejecutadas</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <h1>Actividades Creadas</h1>
+        <!-- Aquí se insertarán las actividades desde el servidor -->
+        <div class="actividades-container">
+        </div>
+    </main>
+    <script>
+        async function eliminarActividad(id) {
+            if (confirm("¿Estás seguro de que deseas eliminar esta actividad?")) {
+                const response = await fetch(`/EliminarActividad/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    alert(`La actividad con ID: ${id} ha sido eliminada.`);
+                    location.reload(); // Recargar la página después de eliminar la actividad
+                } else {
+                    alert('No se pudo eliminar la actividad.');
+                }
+            }
+        }
+
+        function editarActividad(id) {
+            // Redireccionar a la página de edición de actividad
+            window.location.href = `/EditarActividad.html?id=${id}`;
+        }
+
+        function inscribirEstudiantes(id) {
+            // Redireccionar a la página de inscribir estudiantes
+            window.location.href = `/InscribirEstudiantes?id=${id}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Aquí podrías cargar las actividades dinámicamente si es necesario
+        });
+    </script>
+</body>
+
+</html>

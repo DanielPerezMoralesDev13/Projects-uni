@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+    <title>Asistencia de la Actividad</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #007BFF;
+            padding: 10px 0;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+        }
+
+        nav ul li {
+            margin: 0 15px;
+        }
+
+        nav ul li a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 18px;
+        }
+
+        nav ul li a:hover {
+            text-decoration: underline;
+        }
+
+        main {
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .estudiantes-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .estudiante-card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 20px;
+            padding: 20px;
+            max-width: 400px;
+            width: calc(100% - 40px);
+            text-align: left;
+            transition: transform 0.3s ease;
+        }
+
+        .estudiante-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .estudiante-card h2 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+
+        .estudiante-card p {
+            color: #666;
+            margin-bottom: 10px;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .finalizar-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            background-color: #28a745;
+            color: #fff;
+            text-align: center;
+        }
+
+        .finalizar-button:hover {
+            background-color: #218838;
+        }
+
+        .asistio-checkbox {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="/">Inicio</a></li>
+                <li><a href="/CrearActividades">Crear Actividades</a></li>
+                <li><a href="/VerActividades">Ver Actividades</a></li>
+                <li><a href="/ActividadesEnEjecucion">Actividades en Ejecución</a></li>
+                <li><a href="/VerRegistroActividadesEjecutadas">Ver Registro de Actividades Ejecutadas</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <h1>Asistencia de la Actividad</h1>
+        <div class="estudiantes-container">
+            <!-- Aquí se insertarán los estudiantes desde el servidor -->
+        </div>
+        <div class="button-container">
+            <button class="finalizar-button"
+                onclick="registrarAsistencia()">Registrar Asistencia</button>
+        </div>
+    </main>
+    <script>
+        async function cargarEstudiantes() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const idActividad = urlParams.get('id_actividad');
+
+                if (!idActividad) {
+                    throw new Error('No se proporcionó un ID de actividad.');
+                }
+
+                const response = await fetch(`/api/AsistenciaDeLaActividad?id_actividad=${idActividad}`);
+                const data = await response.json();
+                if (data.success) {
+                    const estudiantes = data.estudiantes;
+                    const estudiantesContainer = document.querySelector('.estudiantes-container');
+                    estudiantesContainer.innerHTML = ''; // Limpiar contenido actual
+                    estudiantes.forEach(estudiante => {
+                        const card = document.createElement('div');
+                        card.classList.add('estudiante-card');
+                        card.innerHTML = `
+                        <h2>${estudiante.nombre}</h2>
+                        <p><strong>Carnet:</strong> ${estudiante.carnet}</p>
+                        <p><strong>Carrera:</strong> ${estudiante.carrera}</p>
+                        <div class="asistio-checkbox">
+                            <label>
+                                <input type="checkbox" value="${estudiante.id}" class="asistio-checkbox-input"> Asistió
+                            </label>
+                        </div>`;
+                        estudiantesContainer.appendChild(card);
+                    });
+
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error.message);
+                alert('Error al cargar los estudiantes: ' + error.message);
+            }
+        }
+
+        async function registrarAsistencia() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const idActividad = urlParams.get('id_actividad');
+
+                if (!idActividad) {
+                    throw new Error('No se proporcionó un ID de actividad.');
+                }
+
+                const checkboxes = document.querySelectorAll('.asistio-checkbox-input:checked');
+                const estudiantesAsistentes = Array.from(checkboxes).map(cb => parseInt(cb.value));
+
+                const response = await fetch('/api/RegistrarAsistencia', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        idActividad: parseInt(idActividad),
+                        estudiantesAsistentes
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    alert('Asistencia registrada exitosamente.');
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error.message);
+                alert('Error al registrar la asistencia: ' + error.message);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            cargarEstudiantes();
+        });
+    </script>
+</body>
+
+</html>

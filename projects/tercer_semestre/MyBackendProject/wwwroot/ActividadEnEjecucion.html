@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+    <title>Seleccionar Estudiantes</title>
+</head>
+
+<body>
+    <h1>Seleccione Estudiantes Inscritos</h1>
+    <form id="select-students-form">
+        <div id="estudiantes-container">
+            <!-- Aquí se generarán dinámicamente los radio buttons -->
+        </div>
+        <button type="submit">Aceptar</button>
+    </form>
+    <script>
+        // Función para cargar y mostrar estudiantes inscritos
+        async function cargarEstudiantes() {
+            const response = await fetch('/ObtenerEstudiantesInscritos?idActividad=' + actividadId);
+            const estudiantes = await response.json();
+
+            const estudiantesContainer = document.getElementById('estudiantes-container');
+            estudiantes.forEach(estudiante => {
+                const radioBtn = document.createElement('input');
+                radioBtn.type = 'radio';
+                radioBtn.name = 'estudianteSeleccionado';
+                radioBtn.value = estudiante.id;
+
+                const label = document.createElement('label');
+                label.textContent = `${estudiante.nombre} (${estudiante.numeroCarnet}) - ${estudiante.carrera}`;
+
+                estudiantesContainer.appendChild(radioBtn);
+                estudiantesContainer.appendChild(label);
+                estudiantesContainer.appendChild(document.createElement('br'));
+            });
+        }
+
+        // Obtener el ID de la actividad desde la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const actividadId = urlParams.get('id');
+
+        // Cargar estudiantes cuando se cargue la página
+        cargarEstudiantes();
+
+        // Manejar el envío del formulario
+        document.getElementById('select-students-form').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const seleccionado = document.querySelector('input[name="estudianteSeleccionado"]:checked');
+            if (!seleccionado) {
+                alert('Por favor seleccione un estudiante.');
+                return;
+            }
+
+            // Redireccionar o realizar otra acción con el estudiante seleccionado
+            const estudianteId = seleccionado.value;
+            alert(`Estudiante seleccionado con ID: ${estudianteId}`);
+            // Puedes redirigir a otra página aquí
+        });
+    </script>
+</body>
+
+</html>
